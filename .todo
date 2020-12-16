@@ -1,0 +1,5 @@
+reorganise code so acquired and config do the same copy function over
+multithreading(?)
+webworker from selenium to replace soup
+exe (?)
+macOS, Linux
