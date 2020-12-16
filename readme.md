@@ -14,7 +14,7 @@ There is a `install_python` batch file that uses Powershell and Chocolately pack
 
 After you have Python installed or if you already have it installed:
 
-Run install_requirements to install the required python modules! or run `python -m pip install -r requirements.txt" on your shell of choice.
+Run install_requirements to install the required python modules! or run `python -m pip install -r requirements.txt` on your shell of choice.
 
 You can now either run `python {folder of this project}` outside the directory or `python __main__.py` inside the directory!
 
