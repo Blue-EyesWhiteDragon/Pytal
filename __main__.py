@@ -42,7 +42,7 @@ def check_vital_installation ( vital_path ) :
 	else:
 		print("Vital is installed correctly @", bot.pad_url(vital_path), "\n", bot.console_indent(0), "Continuing...")
 
-def set_acquired ( acquired ):
+def set_acquired ( acquired, config ):
 	global _vital_path, _acquired, _acquired_location
 
 	print ("Checking for previous downloads...")
@@ -50,30 +50,38 @@ def set_acquired ( acquired ):
 	_assume_acquired = os.path.join(_vital_path, _config["SAVE_PATH"], "acquired.json")
 
 	if ( "acquiredJSON" in _config ):
-		_assume_acquired = os.path.join(_config["acquiredJSON"])
+		_assume_acquired = _config["acquiredJSON"]
 	
 	if ( os.path.isfile(_assume_acquired) == True ):
 		print(bot.console_indent(0),"Previous downloads detected, ommiting them!")
-		_acquired_location = _assume_acquired
-
-	with open(_acquired_location, "r") as file:
-		acquired = json.load(file)
+	else:
+		print(bot.console_indent(0),"No previous downloads detected! Let's get cracking!")
 	
 	_acquired_location = _assume_acquired
 
-	with open(_acquired_location, "w") as file:
+	with open(_acquired_location, "w+") as file:
+			json.dump(acquired, file)
+	
+	with open(_acquired_location, "r") as file:
+			acquired = json.load(file)
+
+	with open(_acquired_location, "w+") as file:
 		json.dump(acquired, file)
 	
-	_acquired = acquired
+	config["acquiredJSON"] = _acquired_location
+	with open(_config_location, "w") as file:
+		json.dump(config, file)
 
+	_acquired = acquired
+	
 	return 0
 
 def main ():
 	# use: sys.stdout = open(os.path.join(__file__, "../output.txt"), "w"), if outputting to file
 	read_config(_config)
 	check_vital_installation(_vital_path)
-	set_acquired(_acquired)
 	bot.check_directories(_vital_path, _config["SAVE_PATH"], _config["PRESET_PATH"], _config["BANK_PATH"], _config["TABLE_PATH"])
+	set_acquired(_acquired, _config)
 	bot.grab_presets(_acquired, _acquired_location)
 	sys.stdout.close()
 	return 0
