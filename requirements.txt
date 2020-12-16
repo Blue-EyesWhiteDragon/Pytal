@@ -1,0 +1,13 @@
+# Native
+#os
+#sys
+#re
+#json
+#subprocess
+#urllib
+#multiprocessing
+
+# Additional
+bs4==0.0.1
+wget>=3.2
+coolname>=1.1.0
