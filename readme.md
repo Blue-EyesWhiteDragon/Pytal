@@ -30,7 +30,11 @@ You can now either run `python {folder of this project}` outside the directory o
 Please make sure Vital is installed and its data folder is at `C:/Users/%USERNAME%/Documents/Vital`, if it is **NOT** then you should specify where it is inside the `config.json` under "VITAL_PATH". You can open this file with any text editor like `notepad.exe` and save it. If it is still happening after doing this, please report an issue!
 
 #### It fails on launch with some long error message about utf-8 or encoding ###
-If you're running this from a bash shell the code may fail based on an Unicode error. There is a function inside `bot.py` at `line 26` with a comment about `.encode()`, you can add `.encode()` function there with `notepad.exe` to look like this: `return (" "*(3*amount)+"↳").encode("utf8")`, save it and you error should be resolved
+If you're running this from a bash shell the code may fail based on an Unicode error. There is a function inside `bot.py` at `line 26` with a comment about `.encode()`, you can add `.encode()` function there with `notepad.exe` to look like this:
+```python
+return (" "*(3*amount)+"↳").encode("utf8")
+```
+Save it and you error should be resolved
 
 #### My error isn't listed ####
 Create an issue here on GitHub so all the public can see how it came up and how we resolved it! Open source, baby!
