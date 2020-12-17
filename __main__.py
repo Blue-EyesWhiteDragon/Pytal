@@ -8,31 +8,26 @@
 import os
 import sys
 import json
-import bot
 from pathlib import Path
+from modules import m_grab_presets
 
-_version = "0.1"
-_config = {}
-_config_location = os.path.abspath(os.path.join(__file__, "../config.json"))
-_acquired = {}
-_acquired_location = os.path.abspath(os.path.join(__file__, "../acquired.json"))
-_vital_path = os.path.join(str(Path.home()), "Documents", "Vital")
+_vM, _vm, _vp = (0, 0, 1)
+_version = ( str(_vM) + "." + str(_vm) + "." + str(_vp) )
+_g_config = {}
+_g_config_location = os.path.abspath(os.path.join(__file__, "../config.json"))
+_g_acquired = {}
+_g_acquired_location = os.path.abspath(os.path.join(__file__, "../acquired.json"))
+_g_vital_path = os.path.join(str(Path.home()), "Documents", "Vital")
 
 def read_config ( config ) :
-	global _vital_path, _config
+	global _g_vital_path, _g_config, _g_config_location
 
-	with open(_config_location, "r") as file:
+	print ("Loading config...")
+
+	with open(_g_config_location, "r+") as file:
 		config = json.load(file)
-
-	if ( "VITAL_PATH" in config and config["VITAL_PATH"] != "" ) :
-		_vital_path = config["VITAL_PATH"]
-	else :
-		config["VITAL_PATH"] = _vital_path
 	
-	with open(_config_location, "w") as file:
-		json.dump(config, file)
-	
-	_config = config
+	_g_config = config
 
 	return 0
 
@@ -40,49 +35,48 @@ def check_vital_installation ( vital_path ) :
 	if ( os.path.isdir(vital_path) == False ):
 		sys.exit("Vital is not installed correctly, please check config.json or your installation!")
 	else:
-		print("Vital is installed correctly @", bot.pad_url(vital_path), "\n", bot.console_indent(0), "Continuing...")
+		print("Vital is installed correctly @", m_grab_presets.pad_url(vital_path), "\n", m_grab_presets.console_indent(0), "Continuing...")
 
 def set_acquired ( acquired, config ):
-	global _vital_path, _acquired, _acquired_location
+	global _g_vital_path, _g_acquired, _g_acquired_location
 
 	print ("Checking for previous downloads...")
 
-	_assume_acquired = os.path.join(_vital_path, _config["SAVE_PATH"], "acquired.json")
+	_assume_acquired = _g_acquired_location
 
-	if ( "acquiredJSON" in _config ):
-		_assume_acquired = _config["acquiredJSON"]
+	if ( "acquiredJSON" in config and  config["acquiredJSON"] != "" ):
+		_assume_acquired = config["acquiredJSON"]
+	else:
+		_assume_acquired = os.path.join(_g_vital_path, config["SAVE_PATH"], "acquired.json")
 	
 	if ( os.path.isfile(_assume_acquired) == True ):
-		print(bot.console_indent(0),"Previous downloads detected, ommiting them!")
-	else:
-		print(bot.console_indent(0),"No previous downloads detected! Let's get cracking!")
-	
-	_acquired_location = _assume_acquired
-
-	with open(_acquired_location, "w+") as file:
-			json.dump(acquired, file)
-	
-	with open(_acquired_location, "r") as file:
+		print(m_grab_presets.console_indent(0),"Previous downloads detected, ommiting them!")
+		with open(_assume_acquired, "r+") as file:
 			acquired = json.load(file)
+		_g_acquired_location = _assume_acquired
+	else:
+		print(m_grab_presets.console_indent(0),"No previous downloads detected! Let's get cracking!")
 
-	with open(_acquired_location, "w+") as file:
+	with open(_assume_acquired, "w+") as file:
 		json.dump(acquired, file)
 	
-	config["acquiredJSON"] = _acquired_location
-	with open(_config_location, "w") as file:
+	config["acquiredJSON"] = _assume_acquired
+
+	with open(_g_config_location, "w+") as file:
 		json.dump(config, file)
 
-	_acquired = acquired
+	_g_acquired = acquired
+	_g_config = config
 	
 	return 0
 
 def main ():
 	# use: sys.stdout = open(os.path.join(__file__, "../output.txt"), "w"), if outputting to file
-	read_config(_config)
-	check_vital_installation(_vital_path)
-	bot.check_directories(_vital_path, _config["SAVE_PATH"], _config["PRESET_PATH"], _config["BANK_PATH"], _config["TABLE_PATH"])
-	set_acquired(_acquired, _config)
-	bot.grab_presets(_acquired, _acquired_location)
+	read_config(_g_config)
+	check_vital_installation(_g_vital_path)
+	m_grab_presets.check_directories(_g_vital_path, _g_config["SAVE_PATH"], _g_config["PRESET_PATH"], _g_config["BANK_PATH"], _g_config["TABLE_PATH"])
+	set_acquired(_g_acquired, _g_config)
+	m_grab_presets.grab_presets(_g_acquired, _g_acquired_location)
 	sys.stdout.close()
 	return 0
 
